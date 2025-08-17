@@ -141,22 +141,22 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'eaa_db',
-        'USER': 'agent_dev',
+        'USER': 'eaa_dev',
         'PASSWORD': 'dev123',
-        'HOST': '117.72.32.59',
-        'PORT': '3306',
+        'HOST': '81.70.197.117',
+        'PORT': '33069',
     }
 }
 
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://117.72.32.59:6379/10",
+        "LOCATION": "redis://81.70.197.117:63799/0",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "COMPRESSOR": "django_redis.compressors.zlib.ZlibCompressor",
             'SERIALIZER': 'django_redis.serializers.json.JSONSerializer',
-            "PASSWORD": "guqier6379"
+            "PASSWORD": r"eaa@20250815"
         },
         "KEY_PREFIX": "EAA",  # 设置缓存key的前缀
         "VERSION": 1  # 缓存版本
@@ -175,9 +175,9 @@ STORAGES = {  # -- ADDED IN Django 5.1
 
 # ------------ MINIO ----------------
 
-MINIO_ENDPOINT = '123.56.190.241:9000'
-MINIO_ACCESS_KEY = 'Lm4RvLqsiqR2gBGVJZBX'
-MINIO_SECRET_KEY = 'ywIO4Lymr5mskdZfoVJJddPjp2dH34T8XRcW1mY5'
+MINIO_ENDPOINT = '81.70.197.117:9000'
+MINIO_ACCESS_KEY = 'a9Ne2cBWOe6o9IQAKmit'
+MINIO_SECRET_KEY = '1Kldz7XUDOqnc5s0HYqom9Ds0qJ3tla0C8LGAyo1'
 MINIO_USE_HTTPS = False
 MINIO_PUBLIC_BUCKETS = [
     'eaa',
