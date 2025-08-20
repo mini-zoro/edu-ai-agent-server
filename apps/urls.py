@@ -17,4 +17,5 @@ urlpatterns = [
     path('/code', include('apps.code_dict.urls')),
     path('/teacher', include('apps.teacher.urls')),
     path('/student', include('apps.student.urls')),
+    path('/permission', include('apps.permission.urls')),
 ]
