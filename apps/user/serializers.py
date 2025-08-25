@@ -69,11 +69,11 @@ class UserSessionSerializer(serializers.ModelSerializer):
     """
     用户会话信息序列化器
     """
-    permission_keys = serializers.SerializerMethodField(read_only=True)
+    permissions = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = User
         exclude = ('password', 'is_del', 'create_time', 'update_time', 'create_user', 'update_user')
 
-    def get_permission_keys(self, obj):
+    def get_permissions(self, obj):
         return get_user_perms(obj)
