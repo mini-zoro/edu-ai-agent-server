@@ -8,3 +8,17 @@
 @Date    : 2025/8/17 22:01 
 @Version : 1.0
 """
+from rest_framework import serializers
+
+from apps.permission.models import Permission, PermissionRole
+
+
+class PermissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Permission
+        fields = ['id', 'parent', 'key', 'type', 'name', 'grade', 'des']
+
+class PermissionRoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PermissionRole
+        fields = ('permission', 'role')

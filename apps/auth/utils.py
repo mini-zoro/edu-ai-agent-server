@@ -11,10 +11,11 @@
 import json
 
 from AAServer import redis_util
-from AAServer.utils.redis_utils import CacheKeys
+from AAServer.utils.RedisUtils import CacheKeys
 from apps.auth.models import User
 
 from apps.permission.models import Permission
+from apps.permission.serializers import PermissionSerializer
 
 
 def get_user_perms_from_db(user) -> list:
@@ -31,7 +32,7 @@ def get_user_perms_from_db(user) -> list:
             permissionrole__role__userrole__user=user,
             permissionrole__role__userrole__user__is_del=0
         ).values_list('name', flat=True).distinct()
-    return list(set(qs))
+    return PermissionSerializer(qs, many=True).data
 
 
 def get_user_perms(user) -> list:

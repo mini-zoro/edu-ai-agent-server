@@ -16,7 +16,7 @@ from django.forms import model_to_dict
 
 from AAServer import redis_util
 from AAServer.common.authentication import generate_token
-from AAServer.utils.redis_utils import CacheKeys
+from AAServer.utils.RedisUtils import CacheKeys
 from apps.auth.utils import get_user_perms_from_db, get_user_perms
 from django.utils import timezone
 

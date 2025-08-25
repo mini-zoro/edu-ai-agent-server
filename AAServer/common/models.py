@@ -14,7 +14,7 @@ from django.utils import timezone
 
 from AAServer.common.manager import ModelManager
 from AAServer.common.middleware import GlobalRequestMiddleware
-from AAServer.utils.session_utils import SessionUtils
+from AAServer.utils.SessionUtils import SessionUtils
 from AAServer.common.snowflake import next_id
 
 

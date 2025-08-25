@@ -6,7 +6,7 @@ from AAServer import constants
 from AAServer.common.middleware import GlobalRequestMiddleware
 from AAServer.common.pagination import CwsPageNumberPagination
 from AAServer.response import R, ResponseEnum
-from AAServer.utils.session_utils import SessionUtils
+from AAServer.utils.SessionUtils import SessionUtils
 from apps.resource.models import Resource
 from apps.resource.serializers import ResourceUpdateSerializer, ResourceSerializer
 

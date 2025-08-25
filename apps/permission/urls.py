@@ -10,5 +10,9 @@
 """
 from django.urls import path
 
+import apps.permission.views
+
 urlpatterns = [
+    path('', apps.permission.views.PermissionView.as_view()),
+    path('/roleId/<int:role_id>', apps.permission.views.get_permission_by_role),
 ]
