@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-7zmd#i(syq01ljcbdlcv0j83&3y0r2uo$8c4a(5*rsir*inm5)'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -47,7 +47,8 @@ INSTALLED_APPS = [
     'apps.user.apps.UserConfig',
     'apps.code_dict.apps.CodeDictConfig',
     'apps.teacher.apps.TeacherConfig',
-    'apps.student.apps.StudentConfig'
+    'apps.student.apps.StudentConfig',
+    'apps.role.apps.RoleConfig'
 ]
 
 MIDDLEWARE = [

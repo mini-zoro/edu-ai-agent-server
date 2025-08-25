@@ -16,6 +16,7 @@ import redis
 from rest_framework.exceptions import NotAuthenticated, AuthenticationFailed, ValidationError, NotFound
 from rest_framework.views import exception_handler
 
+from AAServer.common.exceptions import CustomException
 from AAServer.response import ResponseEnum, R
 
 logger = logging.getLogger("AAServer")
@@ -50,6 +51,8 @@ def common_exception_handler(exc, context):
         return R.fail(ResponseEnum.NETWORK_ERROR, data=str(exc))
     if isinstance(exc, NotFound):
         return R.fail(ResponseEnum.DATA_NOT_FOUND, data=str(exc))
+    if isinstance(exc, CustomException):
+        return R.fail_code_msg(exc.code, exc.detail)
 
     # 处理其他异常
     if response is not None:

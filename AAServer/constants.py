@@ -79,3 +79,11 @@ class UserDict:
 
     # 用户密码校验正则表达式：包含8-20个字符且包含至少一个字母和一个数字
     USER_PASSWORD_REGEX = r'^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d!@#$%^&*()_+={}\[\]:;"\'<>,.?/\\|-]{8,20}$'
+
+class RoleDict:
+    """
+    角色相关常量
+    """
+    ROLE_TYPE_OPTIONAL = 0  # 可选角色
+    ROLE_TYPE_SYSTEM   = 1  # 系统角色
+    ROLE_TYPE_CUSTOM   = 2  # 用户自定义角色
