@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 from AAServer.common.exceptions import CustomException, ValidationException
 from AAServer.response import R
 from apps import permission
+from apps.auth.utils import clear_user_perms_cache
 from apps.permission.models import Permission, PermissionRole
 from apps.permission.serializers import PermissionSerializer
 from apps.role.models import Role
@@ -39,7 +40,7 @@ class PermissionView(APIView):
             PermissionRole(permission=p, role=role) for p in permissions
         ], ignore_conflicts=True)
 
-        # TODO 清除该角色下所有用户的权限缓存
+        clear_user_perms_cache(role_id=role_id) # 清除拥有该角色的用户权限缓存
 
         return R.success()
 

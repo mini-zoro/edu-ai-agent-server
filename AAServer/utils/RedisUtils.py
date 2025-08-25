@@ -90,6 +90,6 @@ class RedisUtil:
 
 class CacheKeys:
     TOKEN_USER = 'AUTH:TOKEN_USER:'          # token对应的用户信息缓存
-    USER_PERMISSIONS = 'AUTH:PERMISSION:'  # 用户权限缓存
+    USER_PERMISSIONS = 'AUTH:USER_PERMISSION:'  # 用户权限缓存
 
     USER_INFO = 'USER:USER_INFO:'  # 用户信息缓存
