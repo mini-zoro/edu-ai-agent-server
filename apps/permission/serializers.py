@@ -22,3 +22,15 @@ class PermissionRoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = PermissionRole
         fields = ('permission', 'role')
+
+
+class PermissionTreeSerializer(serializers.ModelSerializer):
+    children = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = Permission
+        fields = ['id', 'parent', 'key', 'type', 'name', 'grade', 'des', 'children']
+
+    def get_children(self, obj):
+        children = Permission.objects.filter(parent=obj)
+        return PermissionTreeSerializer(children, many=True).data
