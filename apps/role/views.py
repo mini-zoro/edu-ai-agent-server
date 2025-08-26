@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
@@ -5,7 +6,8 @@ from rest_framework.views import APIView
 from AAServer.common.exceptions import CustomException
 from AAServer.common.pagination import CwsPageNumberPagination
 from AAServer.response import R, ResponseEnum
-from apps.role.models import Role
+from apps.permission.models import PermissionRole
+from apps.role.models import Role, UserRole
 from apps.role.serializers import RoleSerializer
 
 @api_view(['GET'])
@@ -34,6 +36,7 @@ class RoleMngView(APIView):
         serializer = RoleSerializer(page, many=True)
         return paginator.get_paginated_response(serializer.data)
 
+    @transaction.atomic
     def post(self, request):
         """
            创建新角色
@@ -45,6 +48,7 @@ class RoleMngView(APIView):
             'role_id': role.id,
         })
 
+    @transaction.atomic
     def put(self, request):
         """
             更新角色信息
@@ -61,6 +65,7 @@ class RoleMngView(APIView):
         serializer.save()
         return R.success()
 
+    @transaction.atomic
     def delete(self, request):
         """
             删除角色（逻辑删除）
@@ -76,4 +81,9 @@ class RoleMngView(APIView):
             if obj.type != 2:
                 return R.fail(ResponseEnum.PARAM_IS_INVAlID, f"角色 {obj.role_name} 不可删除")
         qs.delete()
+        # 删除角色后续处理
+        # 删除用户角色关系
+        UserRole.objects.filter(role__id__in=ids).delete()
+        # 删除角色权限关系
+        PermissionRole.objects.filter(role__id__in=ids).delete()
         return R.success()

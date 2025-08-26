@@ -14,12 +14,14 @@ from rest_framework import serializers
 from AAServer.common.exceptions import CustomException
 from apps.role.models import Role
 
+
 class RoleSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     role_key = serializers.CharField(required=True)
     role_name = serializers.CharField(required=True)
     type = serializers.IntegerField(read_only=True)
     typeName = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = Role
         exclude = ('is_del', 'create_user', 'update_user', 'create_time', 'update_time')
@@ -33,7 +35,7 @@ class RoleSerializer(serializers.ModelSerializer):
         return type_dict.get(obj.type, "未知")
 
     def validate_role_key(self, value):
-        if Role.objects.filter(role_key=value).exists():
-            raise CustomException(detail="角色码已存在")
+        if not self.instance: # 创建时校验唯一
+            if Role.objects.filter(role_key=value).exists():
+                raise CustomException(detail="角色码已存在")
         return value
-

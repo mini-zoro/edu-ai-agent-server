@@ -19,7 +19,7 @@ class Permission(BaseModel):
         db_comment='父级权限'
     )
     key = models.CharField(max_length=255, blank=True, null=True, db_comment='权限码（权限路径）')
-    type = models.IntegerField(blank=True, null=True, db_comment='权限类型，0表示页面权限，1表示操作权限')
+    type = models.IntegerField(blank=True, null=True, db_comment='权限类型，0表示页面权限，1表示操作权限，2表示按钮权限')
     name = models.CharField(max_length=255, blank=True, null=True, db_comment='权限名')
     grade = models.IntegerField(blank=True, null=True, db_comment='目录层级')
     des = models.CharField(max_length=255, blank=True, null=True, db_comment='描述')

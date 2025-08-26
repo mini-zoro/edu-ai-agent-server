@@ -14,6 +14,6 @@ import apps.permission.views
 
 urlpatterns = [
     path('', apps.permission.views.PermissionView.as_view()),
-    path('/roleId/<int:role_id>', apps.permission.views.get_permission_by_role),
+    path('/role/<int:role_id>', apps.permission.views.get_permission_by_role),
     path('/tree', apps.permission.views.get_permission_tree)
 ]

@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
@@ -24,6 +25,7 @@ class PermissionView(APIView):
         """
         return R.success(PermissionSerializer(Permission.objects.all(), many=True).data)
 
+    @transaction.atomic
     def put(self, request):
         """
         更新角色权限
@@ -53,7 +55,7 @@ def get_permission_by_role(request, role_id):
     """
     根据角色ID获取权限列表
     """
-    permissions = Permission.objects.filter(role__id=role_id).distinct()
+    permissions = Permission.objects.filter(permissionrole__role_id=role_id).distinct()
     serializer = PermissionSerializer(permissions, many=True)
     return R.success(serializer.data)
 
