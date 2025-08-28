@@ -11,10 +11,11 @@
 import json
 
 from AAServer import redis_util
-from AAServer.utils.redis_utils import CacheKeys
+from AAServer.utils.RedisUtils import CacheKeys
 from apps.auth.models import User
 
 from apps.permission.models import Permission
+from apps.permission.serializers import PermissionSerializer
 
 
 def get_user_perms_from_db(user) -> list:
@@ -31,7 +32,7 @@ def get_user_perms_from_db(user) -> list:
             permissionrole__role__userrole__user=user,
             permissionrole__role__userrole__user__is_del=0
         ).values_list('name', flat=True).distinct()
-    return list(set(qs))
+    return PermissionSerializer(qs, many=True).data
 
 
 def get_user_perms(user) -> list:
@@ -50,3 +51,13 @@ def get_user_perms(user) -> list:
         perms = get_user_perms_from_db(user if isinstance(user, User) else User.objects.get(id=user_id))
         redis_util.set_object(CacheKeys.USER_PERMISSIONS + str(user_id), perms, timeout=3600 * 24)  # 缓存一天
         return perms
+
+def clear_user_perms_cache(role_id):
+    """
+    清除拥有某个角色的用户权限缓存
+    :param role_id: 角色ID
+    :return:
+    """
+    user_ids = User.objects.filter(userrole__role_id=role_id).values_list('id', flat=True).distinct()
+    for user_id in user_ids:
+        redis_util.delete(CacheKeys.USER_PERMISSIONS + str(user_id))

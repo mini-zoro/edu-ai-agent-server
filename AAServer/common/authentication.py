@@ -16,7 +16,7 @@ from rest_framework.exceptions import AuthenticationFailed
 
 from AAServer import redis_util
 from AAServer.common import exceptions
-from AAServer.utils.redis_utils import CacheKeys
+from AAServer.utils.RedisUtils import CacheKeys
 from apps.auth.models import User
 
 

@@ -5,7 +5,7 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from AAServer import redis_util
 from AAServer.common.authentication import get_authorization_token, generate_token
 from AAServer.response import R, ResponseEnum
-from AAServer.utils.redis_utils import CacheKeys
+from AAServer.utils.RedisUtils import CacheKeys
 from apps.auth.models import User
 from apps.auth.services import do_login
 
