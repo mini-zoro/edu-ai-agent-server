@@ -41,9 +41,13 @@ class PermissionView(APIView):
         # 删除旧角色权限关系
         PermissionRole.objects.filter(role=role).delete()
         # 创建新角色权限关系
-        PermissionRole.objects.bulk_create([
-            PermissionRole(permission=p, role=role) for p in permissions
-        ], ignore_conflicts=True)
+        # PermissionRole.objects.bulk_create([
+        #     PermissionRole(permission=p, role=role) for p in permissions
+        # ], ignore_conflicts=True)
+
+        perm_roles = [PermissionRole(permission=p, role=role) for p in permissions]
+        for pr in perm_roles:
+            pr.save()
 
         clear_user_perms_cache(role_id=role_id)  # 清除拥有该角色的用户权限缓存
 
