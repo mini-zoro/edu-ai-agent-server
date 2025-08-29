@@ -21,7 +21,7 @@ AAServer 是一个基于 Django 和 Django REST Framework 构建的 REST API 服
 - **数据库**: MySQL
 - **缓存**: Redis
 - **认证方式**: Token Authentication
-- **Python 版本**: 3.8+
+- **Python 版本**: 3.13+
 
 ## 项目结构
 
@@ -47,23 +47,26 @@ AAServer/
 ├── requirements.txt         # 项目依赖
 └── README.md               # 项目说明文档
 ```
+
 ## 安装说明
 
 ### 环境要求
 
-- Python 3.8+
+- Python 3.13+
 - MySQL 5.7+
 - Redis 6.0+
 
 ### 安装步骤
 
 1. **克隆项目**
+
    ```bash
    git clone <repository-url>
    cd AAServer
    ```
 
 2. **创建虚拟环境**
+
    ```bash
    python -m venv venv
    # Windows
@@ -73,21 +76,25 @@ AAServer/
    ```
 
 3. **安装依赖**
+
    ```bash
    pip install -r requirements.txt
    ```
 
 4. **配置数据库**
+
    - 创建 MySQL 数据库
    - 修改 `AAServer/settings.py` 中的数据库配置
 
 5. **运行数据库迁移**
+
    ```bash
    python manage.py makemigrations
    python manage.py migrate
    ```
 
 6. **创建超级用户**
+
    ```bash
    python manage.py createsuperuser
    ```

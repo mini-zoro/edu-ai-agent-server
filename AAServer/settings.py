@@ -48,7 +48,8 @@ INSTALLED_APPS = [
     'apps.code_dict.apps.CodeDictConfig',
     'apps.teacher.apps.TeacherConfig',
     'apps.student.apps.StudentConfig',
-    'apps.role.apps.RoleConfig'
+    'apps.role.apps.RoleConfig',
+    'apps.agent.apps.AgentConfig',
 ]
 
 MIDDLEWARE = [
@@ -69,8 +70,7 @@ ROOT_URLCONF = 'AAServer.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': []
-        ,
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -186,7 +186,8 @@ MINIO_PUBLIC_BUCKETS = [
 MINIO_POLICY_HOOKS: List[Tuple[str, dict]] = []
 MINIO_MEDIA_FILES_BUCKET = 'eaa'  # replacement for MEDIA_ROOT
 # MINIO_STATIC_FILES_BUCKET = 'eaa'  # replacement for STATIC_ROOT
-MINIO_BUCKET_CHECK_ON_SAVE = True  # Default: True // Creates bucket if missing, then save
+# Default: True // Creates bucket if missing, then save
+MINIO_BUCKET_CHECK_ON_SAVE = True
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

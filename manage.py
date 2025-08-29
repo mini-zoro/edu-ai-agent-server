@@ -20,5 +20,5 @@ def main():
 
 
 if __name__ == '__main__':
-    Runserver.default_port = '8880'  # 修改默认端口
+    Runserver.default_port = '8000'  # 修改默认端口
     main()
