@@ -48,7 +48,8 @@ INSTALLED_APPS = [
     'apps.code_dict.apps.CodeDictConfig',
     'apps.teacher.apps.TeacherConfig',
     'apps.student.apps.StudentConfig',
-    'apps.role.apps.RoleConfig'
+    'apps.role.apps.RoleConfig',
+    'apps.rbac.apps.RbacConfig'
 ]
 
 MIDDLEWARE = [

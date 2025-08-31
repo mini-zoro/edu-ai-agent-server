@@ -16,6 +16,8 @@ from apps.auth.models import User
 from apps.auth.utils import get_user_perms
 from apps.resource.models import Resource
 from apps.resource.serializers import ResourceSerializer
+from apps.role.services import get_roles_by_user_id
+
 
 class UserBaseSerializer(serializers.ModelSerializer):
     avatar_url = serializers.SerializerMethodField(read_only=True)
@@ -77,3 +79,18 @@ class UserSessionSerializer(serializers.ModelSerializer):
 
     def get_permissions(self, obj):
         return get_user_perms(obj)
+
+class UserWithRolesSerializer(UserInlineSerializer):
+    """
+    用户角色列表序列化器
+    """
+    roles = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = User
+        exclude = ('password', 'is_del', 'create_user', 'create_time', 'update_time', 'update_user')
+
+    def get_roles(self, obj):
+        from apps.role.serializers import RoleSerializer
+        roles = get_roles_by_user_id(obj.id)
+        return RoleSerializer(roles, many=True).data
