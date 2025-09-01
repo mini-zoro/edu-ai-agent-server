@@ -49,7 +49,7 @@ class ResponseEnum(Enum):
     INVALID_TOKEN = (202, "无效Token信息")
     USER_NOT_EXIST = (203, "用户不存在")
     USER_LOGIN_ERROR = (204, "登陆失败，账号或者密码有误")
-    NOT_PERMISSION = (205, "无权限访问")
+    PERMISSION_DENIED = (205, "当前用户无权限访问")
     TOKEN_EXPIRED = (206, "Token已过期")
     NOT_FOR_STUDENT = (207, "管理后台仅限教师或管理员登录")
     ERROR_AUTH_CODE = (208, "验证码错误")

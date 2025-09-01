@@ -132,6 +132,7 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
+        "AAServer.common.permissions.RBACPermission",
     ],
     "EXCEPTION_HANDLER": "AAServer.common.exception_handler.common_exception_handler",
 }

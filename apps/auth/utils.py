@@ -52,6 +52,7 @@ def get_user_perms(user) -> list:
         redis_util.set_object(CacheKeys.USER_PERMISSIONS + str(user_id), perms, timeout=3600 * 24)  # 缓存一天
         return perms
 
+
 def clear_user_perms_cache(role_id):
     """
     清除拥有某个角色的用户权限缓存
@@ -61,3 +62,8 @@ def clear_user_perms_cache(role_id):
     user_ids = User.objects.filter(userrole__role_id=role_id).values_list('id', flat=True).distinct()
     for user_id in user_ids:
         redis_util.delete(CacheKeys.USER_PERMISSIONS + str(user_id))
+
+
+def get_user_perms_to_array(user):
+    perms_list = get_user_perms_from_db(user)
+    return [p['key'] for p in perms_list]
