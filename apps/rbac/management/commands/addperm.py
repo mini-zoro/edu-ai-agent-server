@@ -23,8 +23,6 @@ class Command(BaseCommand):
         parser.add_argument('--name', required=True, help='权限名称')
         parser.add_argument('--type', type=int, choices=[0, 1, 2], required=True,
                             help='权限类型：0 页面 1 接口 2 按钮')
-        parser.add_argument('--grade', type=int, default=1,
-                            help='目录层级，默认 1')
         parser.add_argument('--parent', default=None,
                             help='父权限 key 或 id；无父级可省略')
         parser.add_argument('--des', default='', help='描述')
@@ -36,7 +34,6 @@ class Command(BaseCommand):
         key = options['key']
         name = options['name']
         ptype = options['type']
-        grade = options['grade']
         des = options['des']
 
         # 检查权限是否存在
@@ -62,7 +59,7 @@ class Command(BaseCommand):
             defaults={
                 'name': name,
                 'type': ptype,
-                'grade': grade,
+                'grade': parent_obj.grade + 1 if parent_obj else 0,
                 'parent': parent_obj,
                 'des': des,
             }
