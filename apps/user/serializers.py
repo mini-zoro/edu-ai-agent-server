@@ -13,7 +13,7 @@ from rest_framework import serializers
 
 from AAServer import constants
 from apps.auth.models import User
-from apps.auth.utils import get_user_perms
+from apps.auth.utils import get_user_perms, get_user_perms_from_db
 from apps.resource.models import Resource
 from apps.resource.serializers import ResourceSerializer
 from apps.role.services import get_roles_by_user_id
@@ -78,7 +78,7 @@ class UserSessionSerializer(serializers.ModelSerializer):
         exclude = ('password', 'is_del', 'create_time', 'update_time', 'create_user', 'update_user')
 
     def get_permissions(self, obj):
-        return get_user_perms(obj)
+        return get_user_perms_from_db(obj)
 
 class UserWithRolesSerializer(UserInlineSerializer):
     """

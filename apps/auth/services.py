@@ -17,7 +17,7 @@ from django.forms import model_to_dict
 from AAServer import redis_util
 from AAServer.common.authentication import generate_token
 from AAServer.utils.RedisUtils import CacheKeys
-from apps.auth.utils import get_user_perms_from_db, get_user_perms
+from apps.auth.utils import get_user_perms_from_db
 from django.utils import timezone
 
 
@@ -31,7 +31,7 @@ def do_login(user):
     access_token = generate_token()
 
     # 获取用户权限
-    permissions = get_user_perms(user)
+    permissions = get_user_perms_from_db(user)
 
     # 存入缓存
     user_info = model_to_dict(user, exclude=['create_time', 'update_time', 'password', 'create_user', 'update_user', 'is_del', 'expire_time', 'last_login'])
