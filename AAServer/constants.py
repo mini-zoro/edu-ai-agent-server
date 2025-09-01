@@ -14,6 +14,7 @@ class CodeDict:
     CODE_STUDENT_IDENTITY = 'student_identity' # 学生身份
     CODE_TEACHER_TITLE = 'teacher_title' # 教师职称
     STUDENT_STATUS = 'student_status' # 学生状态
+    SUBJECT = 'subject' # 学科类别
     CODE_TYPE = [
         {
             'name': '教师职业',
@@ -30,6 +31,10 @@ class CodeDict:
         {
             'name': '学生状态',
             'type': STUDENT_STATUS
+        },
+        {
+            'name': '学科类别',
+            'type': SUBJECT
         }
     ]
 
