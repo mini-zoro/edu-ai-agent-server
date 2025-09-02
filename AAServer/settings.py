@@ -49,7 +49,8 @@ INSTALLED_APPS = [
     'apps.teacher.apps.TeacherConfig',
     'apps.student.apps.StudentConfig',
     'apps.role.apps.RoleConfig',
-    'apps.rbac.apps.RbacConfig'
+    'apps.rbac.apps.RbacConfig',
+    'apps.university.apps.UniversityConfig'
 ]
 
 MIDDLEWARE = [

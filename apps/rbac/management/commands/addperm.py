@@ -13,6 +13,7 @@ from django.db import transaction
 
 from AAServer import redis_util
 from AAServer.utils.RedisUtils import CacheKeys
+from apps.rbac.utils import clear_perms_cache
 
 
 class Command(BaseCommand):
@@ -70,7 +71,4 @@ class Command(BaseCommand):
         )
 
         # 清除缓存
-        keys = redis_util.get_all_keys()
-        to_del_keys = [k for k in keys if k.startswith(CacheKeys.USER_PERMISSIONS)]
-        for k in to_del_keys:
-            redis_util.delete_value(k)
+        clear_perms_cache()
