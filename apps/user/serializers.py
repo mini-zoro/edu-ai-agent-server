@@ -40,17 +40,34 @@ class UserInlineSerializer(UserBaseSerializer):
         exclude = ('password', 'is_del', 'create_user', 'create_time', 'update_time', 'update_user')   # 不暴露敏感字段
 
 class UserSerializer(serializers.ModelSerializer):
+    phone = serializers.CharField(validators=[
+        RegexValidator(
+            regex=constants.UserDict.USER_PHONE_REGEX,
+            message='请输入正确的手机号'
+        )
+    ])
+    email = serializers.CharField(validators=[
+        RegexValidator(
+            regex=constants.UserDict.USER_EMAIL_REGEX,
+            message='请输入正确的电子邮箱'
+        )
+    ], required=False)
+
+    class Meta:
+        model = User
+        fields = "__all__"
+        read_only_fields = ("id",)
+
+class UserCreateSerializer(UserSerializer):
     password = serializers.CharField(write_only=True, validators=[
         RegexValidator(
             regex=constants.UserDict.USER_PASSWORD_REGEX,
             message='密码必须 8-20 位，且包含字母、数字'
         )
     ])
-
     class Meta:
         model = User
         fields = "__all__"
-        read_only_fields = ("id",)
 
 
 class UserInfoSerializer(UserSerializer):

@@ -19,4 +19,5 @@ urlpatterns = [
     path('/student', include('apps.student.urls')),
     path('/permission', include('apps.permission.urls')),
     path('/role', include('apps.role.urls')),
+    path('/university', include('apps.university.urls')),
 ]
