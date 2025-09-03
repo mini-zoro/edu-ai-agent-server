@@ -32,4 +32,4 @@ def clear_perms_cache():
     to_del_keys = [k for k in keys if k.startswith(CacheKeys.USER_PERMISSIONS)]
     for k in to_del_keys:
         redis_util.delete_value(k)
-    redis_util.delete_key(CacheKeys.PERMISSION_TREE)
+    redis_util.delete_value(CacheKeys.PERMISSION_TREE)
