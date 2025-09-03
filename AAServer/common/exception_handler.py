@@ -13,7 +13,8 @@ import logging
 import traceback
 
 import redis
-from rest_framework.exceptions import NotAuthenticated, AuthenticationFailed, ValidationError, NotFound
+from rest_framework.exceptions import NotAuthenticated, AuthenticationFailed, ValidationError, NotFound, \
+    PermissionDenied
 from rest_framework.views import exception_handler
 
 from AAServer.common.exceptions import CustomException
@@ -53,6 +54,8 @@ def common_exception_handler(exc, context):
         return R.fail(ResponseEnum.DATA_NOT_FOUND, data=str(exc))
     if isinstance(exc, CustomException):
         return R.fail_code_msg(exc.code, exc.detail)
+    if isinstance(exc, PermissionDenied):
+        return R.fail(ResponseEnum.PERMISSION_DENIED)
 
     # 处理其他异常
     if response is not None:

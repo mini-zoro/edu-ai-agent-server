@@ -10,8 +10,8 @@
 """
 
 from django.contrib.auth.hashers import make_password
-from apps.auth.models import User
-from apps.user.serializers import UserSerializer
+from apps.rbac.utils import bind_role_to_user_by_type
+from apps.user.serializers import UserSerializer, UserCreateSerializer
 
 
 def create_user_by_validated_data(validated_data, user_type):
@@ -30,9 +30,12 @@ def create_user_by_validated_data(validated_data, user_type):
     #     **user_fields,
     # )
 
-    serializer = UserSerializer(data=user_fields)
+    serializer = UserCreateSerializer(data=user_fields)
     serializer.is_valid(raise_exception=True)
     user = serializer.save(type=user_type, password=make_password(password))
+
+    # 绑定默认角色
+    bind_role_to_user_by_type(user, user_type)
     return user, validated_data
 
 def update_user_by_validated_data(user, validated_data):
@@ -47,9 +50,9 @@ def update_user_by_validated_data(user, validated_data):
     for attr, value in user_fields.items():
         setattr(user, attr, value)
 
-    user = user.save()
-    # serializer = UserSerializer(instance=user, data=user_fields)
-    # serializer.is_valid(raise_exception=True)
-    # user = serializer.save()
+    # user = user.save()
+    serializer = UserSerializer(instance=user, data=user_fields)
+    serializer.is_valid(raise_exception=True)
+    user = serializer.save()
 
     return user, validated_data

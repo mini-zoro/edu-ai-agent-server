@@ -13,9 +13,11 @@ from rest_framework import serializers
 
 from AAServer import constants
 from apps.auth.models import User
-from apps.auth.utils import get_user_perms
+from apps.auth.utils import get_user_perms, get_user_perms_from_db, get_user_perms_to_array
 from apps.resource.models import Resource
 from apps.resource.serializers import ResourceSerializer
+from apps.role.services import get_roles_by_user_id
+
 
 class UserBaseSerializer(serializers.ModelSerializer):
     avatar_url = serializers.SerializerMethodField(read_only=True)
@@ -38,17 +40,34 @@ class UserInlineSerializer(UserBaseSerializer):
         exclude = ('password', 'is_del', 'create_user', 'create_time', 'update_time', 'update_user')   # 不暴露敏感字段
 
 class UserSerializer(serializers.ModelSerializer):
+    phone = serializers.CharField(validators=[
+        RegexValidator(
+            regex=constants.UserDict.USER_PHONE_REGEX,
+            message='请输入正确的手机号'
+        )
+    ])
+    email = serializers.CharField(validators=[
+        RegexValidator(
+            regex=constants.UserDict.USER_EMAIL_REGEX,
+            message='请输入正确的电子邮箱'
+        )
+    ], required=False)
+
+    class Meta:
+        model = User
+        fields = "__all__"
+        read_only_fields = ("id",)
+
+class UserCreateSerializer(UserSerializer):
     password = serializers.CharField(write_only=True, validators=[
         RegexValidator(
             regex=constants.UserDict.USER_PASSWORD_REGEX,
             message='密码必须 8-20 位，且包含字母、数字'
         )
     ])
-
     class Meta:
         model = User
         fields = "__all__"
-        read_only_fields = ("id",)
 
 
 class UserInfoSerializer(UserSerializer):
@@ -76,4 +95,19 @@ class UserSessionSerializer(serializers.ModelSerializer):
         exclude = ('password', 'is_del', 'create_time', 'update_time', 'create_user', 'update_user')
 
     def get_permissions(self, obj):
-        return get_user_perms(obj)
+        return get_user_perms_to_array(obj)
+
+class UserWithRolesSerializer(UserInlineSerializer):
+    """
+    用户角色列表序列化器
+    """
+    roles = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = User
+        exclude = ('password', 'is_del', 'create_user', 'create_time', 'update_time', 'update_user')
+
+    def get_roles(self, obj):
+        from apps.role.serializers import RoleSerializer
+        roles = get_roles_by_user_id(obj.id)
+        return RoleSerializer(roles, many=True).data

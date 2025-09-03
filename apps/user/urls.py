@@ -14,4 +14,5 @@ import apps.user.views
 
 urlpatterns = [
     path('', apps.user.views.get_user_info),
+    path('/type', apps.user.views.get_user_by_type),
 ]

@@ -15,5 +15,6 @@ import apps.role.views
 urlpatterns = [
     path('', apps.role.views.RoleMngView.as_view()),
     path('/all', apps.role.views.get_all_roles),
+    path('/user', apps.role.views.UserRoleMngView.as_view()),
 
 ]

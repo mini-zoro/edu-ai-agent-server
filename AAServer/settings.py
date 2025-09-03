@@ -49,6 +49,8 @@ INSTALLED_APPS = [
     'apps.teacher.apps.TeacherConfig',
     'apps.student.apps.StudentConfig',
     'apps.role.apps.RoleConfig',
+    'apps.rbac.apps.RbacConfig',
+    'apps.university.apps.UniversityConfig',
     'apps.agent.apps.AgentConfig',
 ]
 
@@ -131,6 +133,7 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
+        "AAServer.common.permissions.RBACPermission",
     ],
     "EXCEPTION_HANDLER": "AAServer.common.exception_handler.common_exception_handler",
 }

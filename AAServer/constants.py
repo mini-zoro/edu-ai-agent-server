@@ -13,7 +13,8 @@ class CodeDict:
     CODE_TEACHER_PROFESSION = 'teacher_profession' # 教师职业
     CODE_STUDENT_IDENTITY = 'student_identity' # 学生身份
     CODE_TEACHER_TITLE = 'teacher_title' # 教师职称
-    STUDENT_STATUS = 'student_status' # 学生状态
+    CODE_STUDENT_STATUS = 'student_status' # 学生状态
+    CODE_SUBJECT = 'subject' # 学科类别
     CODE_TYPE = [
         {
             'name': '教师职业',
@@ -29,7 +30,11 @@ class CodeDict:
         },
         {
             'name': '学生状态',
-            'type': STUDENT_STATUS
+            'type': CODE_STUDENT_STATUS
+        },
+        {
+            'name': '学科类别',
+            'type': CODE_SUBJECT
         }
     ]
 
@@ -79,6 +84,12 @@ class UserDict:
 
     # 用户密码校验正则表达式：包含8-20个字符且包含至少一个字母和一个数字
     USER_PASSWORD_REGEX = r'^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d!@#$%^&*()_+={}\[\]:;"\'<>,.?/\\|-]{8,20}$'
+
+    # 电话号码正则表达式
+    USER_PHONE_REGEX = r'^1[3456789]\d{9}$'
+
+    # 电子邮箱正则表达式
+    USER_EMAIL_REGEX = r'^([a-zA-Z]|[0-9])(\w|\-)+@[a-zA-Z0-9]+\.([a-zA-Z]{2,4})$'
 
 class RoleDict:
     """

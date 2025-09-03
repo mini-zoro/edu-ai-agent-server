@@ -31,7 +31,7 @@ class StudentSerializer(serializers.ModelSerializer):
         return get_code_name_by_type_and_code(obj.identity, constants.CodeDict.CODE_STUDENT_IDENTITY)
 
     def get_status_name(self, obj):
-        return get_code_name_by_type_and_code(obj.status, constants.CodeDict.STUDENT_STATUS)
+        return get_code_name_by_type_and_code(obj.status, constants.CodeDict.CODE_STUDENT_STATUS)
 
 
 class StudentCreateSerializer(serializers.Serializer):
@@ -62,7 +62,7 @@ class StudentCreateSerializer(serializers.Serializer):
         # 2. 再创建学生
         student = Student.objects.create(
             user=_user,
-            **validated_data,
+            **_data,
         )
         return student
 
