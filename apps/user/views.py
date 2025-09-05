@@ -4,6 +4,7 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view
 
 from AAServer import redis_util
+from AAServer.common.authentication import get_authorization_token
 from AAServer.common.cache import cache_get, cache_set
 from AAServer.common.pagination import CwsPageNumberPagination
 from AAServer.response import R, ResponseEnum
@@ -19,7 +20,7 @@ def get_user_info(request):
     :param request: 请求对象
     :return: 用户信息
     """
-    cache_key = CacheKeys.USER_INFO + str(request.user.id)
+    cache_key = CacheKeys.TOKEN_USER + get_authorization_token(request)
     # user_dict = cache_get(cache_key)
     user_data = redis_util.get_object(cache_key)
     if not user_data:
