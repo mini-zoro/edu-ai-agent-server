@@ -3,6 +3,22 @@ from AAServer.common.models import BaseModel
 from apps.auth.models import User
 # Create your models here.
 
+class Tag(BaseModel):
+    """
+    标签模型
+    """
+    id = models.BigIntegerField(primary_key=True, db_comment='标签ID')
+    name = models.CharField(max_length=255, db_comment='标签名称')
+    description = models.TextField(db_comment='标签描述')
+    sequence = models.IntegerField(db_comment='标签排序')
+
+    class Meta:
+        db_table = 'tag'
+        db_table_comment = '标签表'
+        ordering = ['sequence','name']
+    
+    def __str__(self):
+        return self.name
 
 class Agent(BaseModel):
     """
@@ -26,7 +42,7 @@ class Agent(BaseModel):
     agent_type = models.IntegerField(
         db_comment='智能体类型', choices=AGENT_TYPE_CHOICES, default=0)
     tags = models.ManyToManyField(
-        'code_dict.Code',
+        Tag,
         through='AgentTag',
         related_name='agents',
     )
@@ -43,12 +59,15 @@ class Agent(BaseModel):
         """
         判断智能体是否可以被用户使用
         """
-        if self.agent_type == 0:  # 学生专用
-            return user.type == 0
-        elif self.agent_type == 1:  # 老师专用
-            return user.type == 1
-        else:  # 共同使用
+        if user.type == 0:  # 管理员
             return True
+        if self.agent_type == 0:  # 共同专用
+            return  True
+        elif self.agent_type == 1:  # 教师专用
+            return user.type == 1
+        elif self.agent_type == 2:  # 学生专用
+            return user.type == 2
+            
 
 
 class AgentTag(BaseModel):
@@ -61,7 +80,7 @@ class AgentTag(BaseModel):
         db_comment='智能体ID'
     )
     tag = models.ForeignKey(
-        'code_dict.Code',
+        Tag,
         on_delete=models.RESTRICT,
         db_comment='标签ID'
     )
@@ -69,7 +88,9 @@ class AgentTag(BaseModel):
     class Meta:
         db_table = 'tb_agent_tag'
         db_table_comment = '智能体标签关联表'
-        unique_together = ('agent', 'tag')  # 防止重复关联
+
+    def __str__(self):
+        return f"{self.agent.name}-{self.tag.name}"
 
 
 class Conversation(BaseModel):

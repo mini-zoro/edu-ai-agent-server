@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from apps.agent.models import Agent, Conversation, Message, AgentTag
+from apps.agent.models import Agent, Conversation, Message, AgentTag, Tag
 from apps.code_dict.models import Code
 
 
@@ -7,8 +7,14 @@ class TagSerializer(serializers.ModelSerializer):
     """标签序列化器"""
 
     class Meta:
-        model = Code
-        fields = ('id', 'code', 'name', 'sequence')
+        model = Tag
+        fields = ('id', 'name', 'description', 'sequence')
+
+class TagCreateSerializer(serializers.ModelSerializer):
+    """标签创建序列化器"""
+    class Meta:
+        model = Tag
+        fields = ('name', 'description', 'sequence')
 
 
 class AgentSerializer(serializers.ModelSerializer):
@@ -19,7 +25,7 @@ class AgentSerializer(serializers.ModelSerializer):
     tag_ids = serializers.PrimaryKeyRelatedField(
         many=True,
         write_only=True,
-        queryset=Code.objects.all(),
+        queryset=Tag.objects.all(),
         required=False,
         source='tags'
     )
@@ -36,7 +42,7 @@ class AgentCreateSerializer(serializers.ModelSerializer):
     tag_ids = serializers.PrimaryKeyRelatedField(
         many=True,
         write_only=True,
-        queryset=Code.objects.all(),
+        queryset=Tag.objects.all(),
         required=False,
         source='tags'
     )
@@ -54,7 +60,7 @@ class AgentUpdateSerializer(serializers.ModelSerializer):
     tag_ids = serializers.PrimaryKeyRelatedField(
         many=True,
         write_only=True,
-        queryset=Code.objects.all(),
+        queryset=Tag.objects.all(),
         required=False,
         source='tags'
     )
