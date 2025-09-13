@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from apps.agent.models import Agent, Conversation, Message, AgentTag, Tag
 from apps.code_dict.models import Code
+from apps.resource.serializers import ResourceSerializer
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -29,11 +30,17 @@ class AgentSerializer(serializers.ModelSerializer):
         required=False,
         source='tags'
     )
+    avatar = ResourceSerializer(read_only=True)
+    avatar_url = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Agent
         exclude = ('create_user', 'update_user', 'is_del', 'apikey', 'agent_type')
 
+    def get_avatar_url(self, obj):
+        if obj.avatar and obj.avatar.file:
+            return obj.avatar.remote_file_url
+        return None
 
 class AgentCreateSerializer(serializers.ModelSerializer):
     """

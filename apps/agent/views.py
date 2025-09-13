@@ -43,7 +43,8 @@ class AgentView(APIView):
         """
         # 1. 获取查询参数
         search = request.GET.get('search', '').strip()
-        tag_ids = request.GET.getlist('tag_ids', '')
+        tag_ids = request.GET.getlist('tag_ids', [])
+        tag_ids = [tag_id for tag_id in tag_ids if tag_id and tag_id.strip()]
         # 2. 构建基础查询集
         queryset = Agent.objects.filter(is_del=False)
         # 3. 根据用户权限过滤智能体
@@ -65,6 +66,7 @@ class AgentView(APIView):
         page = paginator.paginate_queryset(queryset, request, view=self)
         serializer = AgentSerializer(page, many=True)
         return paginator.get_paginated_response(serializer.data)
+
 
 class AgentManageView(APIView):
     """
@@ -88,7 +90,8 @@ class AgentManageView(APIView):
         """
         # 1. 获取查询参数
         search = request.GET.get('search', '').strip()
-        tag_ids = request.GET.getlist('tag_ids', '')
+        tag_ids = request.GET.getlist('tag_ids', [])
+        tag_ids = [tag_id for tag_id in tag_ids if tag_id and tag_id.strip()]
         # 2. 构建基础查询集
         queryset = Agent.objects.filter(is_del=False)
         # 3. 根据用户权限过滤智能体
