@@ -35,7 +35,8 @@ class Agent(BaseModel):
     id = models.BigIntegerField(primary_key=True, db_comment='智能体ID')
     name = models.CharField(max_length=255, db_comment='智能体名称')
     description = models.TextField(db_comment='智能体描述')
-    avatar = models.ForeignKey('resource.Resource', on_delete=models.SET_NULL,null=True,blank=True, db_comment='智能体头像资源ID')
+    avatar = models.ForeignKey('resource.Resource', on_delete=models.SET_NULL,
+                               null=True, blank=True, db_comment='智能体头像资源ID')
     baseurl = models.CharField(
         max_length=255, db_comment='智能体API请求地址', )
     apikey = models.CharField(
@@ -134,8 +135,6 @@ class Message(BaseModel):
     metadata = models.JSONField(blank=True, null=True, db_comment='消息元数据')
     # 使用 UUID 作为主键，方便与 Dify API 的 message_id 对应
     message_id = models.UUIDField(default=uuid.uuid4, editable=False)
-    # 可选：存储 Dify 返回的元数据，如 token usage, suggested questions 等
-    metadata = models.JSONField(blank=True, null=True, verbose_name="元数据")
 
     class Meta:
         db_table = 'message'

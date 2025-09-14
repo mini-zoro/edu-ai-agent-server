@@ -7,8 +7,6 @@ from django.db.models import F
 from apps.agent.models import Agent, Conversation, Message, AgentTag
 
 
-
-
 class DifyService:
     """
     Dify API服务类
@@ -64,11 +62,16 @@ class ConversationService:
     对话服务类
     """
     @staticmethod
-    def create_conversation(agent_id, user_id, title=None):
+    def create_conversation(agent_id, user_id, title=None,user=None):
         """
         创建对话
         """
-        agent = Agent.objects.get(id=agent_id)
+        try:
+            agent = Agent.objects.get(id=agent_id, is_del=0)
+        except Agent.DoesNotExist:
+            raise ValueError("智能体不存在或已删除")
+        if user and not agent.can_used_by(user):
+            raise ValueError("您没有权限使用此智能体")
         conversation_id = str(uuid.uuid4())
         conversation = Conversation.objects.create(
             agent=agent,
@@ -96,10 +99,12 @@ class ConversationService:
     @staticmethod
     def update_agent_usage(agent_id):
         """
-        更新智能体使用次数
+        更新智能体使用人数
         """
-        agent = Agent.objects.filter(id=agent_id).update(
-            usage_count=F('usage_count') + 1)
+        user_count = Conversation.objects.filter(agent_id=agent_id,is_del=0).values('user_id').distinct().count()
+        Agent.objects.filter(id=agent_id).update(
+            usage_count=user_count)
+        return user_count
 
     @staticmethod
     def generate_related_questions(content):
@@ -112,3 +117,51 @@ class ConversationService:
             "有什么实际应用场景吗？",
             "与其他相关概念有什么区别？"
         ]
+
+    @staticmethod
+    def get_conversation_messgaes(conversation_id,user_id):
+        """
+        获取对话消息
+        """
+        try:
+            conversation = Conversation.objects.get(
+                id=conversation_id,
+                is_del=0,
+                user_id=user_id
+            )
+            return conversation.messages.filter(
+                is_del=0,user_id=user_id)
+        except Conversation.DoesNotExist:
+            return None
+
+    @staticmethod
+    def delete_conversation(converstaion_id,user_id):
+        """
+        删除对话
+        """
+        try:
+            conversation =Conversation.objects.get(
+                id=converstaion_id,
+                is_del=0,
+                user_id=user_id
+            )
+            conversation.update(is_del=1)
+            return True
+        except Conversation.DoesNotExist:
+            return False
+
+    @staticmethod
+    def update_conversation_title(conversation_id,user_id,title):
+        """
+        更新对话标题
+        """
+        try:
+            conversation = Conversation.objects.get(
+                id=conversation_id,
+                is_del=0,
+                user_id=user_id
+            )
+            conversation.update(title=title)
+            return conversation
+        except Conversation.DoesNotExist:
+            return None

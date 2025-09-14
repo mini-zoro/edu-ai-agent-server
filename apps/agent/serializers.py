@@ -11,6 +11,7 @@ class TagSerializer(serializers.ModelSerializer):
         model = Tag
         fields = ('id', 'name', 'description', 'sequence')
 
+
 class TagCreateSerializer(serializers.ModelSerializer):
     """标签创建序列化器"""
     class Meta:
@@ -35,12 +36,14 @@ class AgentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Agent
-        exclude = ('create_user', 'update_user', 'is_del', 'apikey', 'agent_type')
+        exclude = ('create_user', 'update_user',
+                   'is_del', 'apikey', 'agent_type')
 
     def get_avatar_url(self, obj):
         if obj.avatar and obj.avatar.file:
             return obj.avatar.remote_file_url
         return None
+
 
 class AgentCreateSerializer(serializers.ModelSerializer):
     """
@@ -75,7 +78,7 @@ class AgentUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Agent
         fields = ('name', 'description', 'avatar',
-                  'baseurl', 'apikey', 'tag_ids', 'agent_type' )
+                  'baseurl', 'apikey', 'tag_ids', 'agent_type')
 
 
 class ConversationSerializer(serializers.ModelSerializer):
@@ -84,13 +87,24 @@ class ConversationSerializer(serializers.ModelSerializer):
     """
     agent_name = serializers.CharField(source='agent.name', read_only=True)
     message_count = serializers.SerializerMethodField()
+    last_message = serializers.SerializerMethodField()
+    agent_avatar = ResourceSerializer(source='agent.avatar',read_only=True)
 
     class Meta:
         model = Conversation
         exclude = ('create_user', 'update_user', 'is_del')
 
     def get_message_count(self, obj):
-        return obj.message_set.count()
+        return obj.messages.filter(is_del=0).count()
+    def get_last_message(self,obj):
+        last_msg = obj.messages.filtet(is_del=0).order_by('-create_time').first()
+        if last_msg:
+            return{
+                'content':last_msg.content[:100]+'...' if len(last_msg.content)>100 else last_msg.content,
+                'role':last_msg.role,
+                'create_time':last_msg.create_time
+            }
+        return None
 
 
 class ConversationCreateSerializer(serializers.ModelSerializer):
@@ -101,6 +115,19 @@ class ConversationCreateSerializer(serializers.ModelSerializer):
         model = Conversation
         fields = ('agent', 'title')
 
+    def validate_agent(self, value):
+        """验证智能体是否存在且用户有权限使用"""
+        if not value.can_used_by(self.context['request'].user):
+            raise serializers.ValidationError("您没有权限使用此智能体")
+        return value
+    
+class ConversationUpdateSerializer(serializers.ModelSerializer):
+    """
+    对话标题更新序列化器
+    """
+    class Meta:
+        model = Conversation
+        fields = ('title',)
 
 class MessageSerializer(serializers.ModelSerializer):
     """
@@ -119,14 +146,15 @@ class ChatRequestSerializer(serializers.Serializer):
     query = serializers.CharField()
     conversation_id = serializers.CharField(required=False, allow_blank=True)
     auto_generate_name = serializers.BooleanField(default=True)
-
-
-class ConversationUpdateSerializer(serializers.ModelSerializer):
-    """
-    对话标题更新序列化器
-    """
-    title = serializers.CharField(max_length=255)
-
+    
+    def validate_agent_id(self,value):
+        try:
+            agent = Agent.objects.get(id=value,is_del=0)
+        except Agent.DoesNotExist:
+            raise serializers.ValidationError("智能体不存在")
+        if not agent.can_used_by(self.context['request'].user):
+            raise serializers.ValidationError("您没有权限使用此智能体")
+        return value
 
 class AgentTagSerializer(serializers.ModelSerializer):
     """
