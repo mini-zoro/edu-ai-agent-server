@@ -35,7 +35,7 @@ class Agent(BaseModel):
     id = models.BigIntegerField(primary_key=True, db_comment='智能体ID')
     name = models.CharField(max_length=255, db_comment='智能体名称')
     description = models.TextField(db_comment='智能体描述')
-    avatar = models.ForeignKey('resource.Resource', on_delete=models.SET_NULL,
+    avatar = models.ForeignKey('resource.Resource', on_delete=models.RESTRICT,
                                null=True, blank=True, db_comment='智能体头像资源ID')
     baseurl = models.CharField(
         max_length=255, db_comment='智能体API请求地址', )
@@ -101,7 +101,8 @@ class Conversation(BaseModel):
     """
     # 使用 UUID 作为主键，方便与 Dify API 的 conversation_id 对应
     id = models.BigIntegerField(primary_key=True, db_comment='消息ID')
-    conversation_id = models.UUIDField(default=uuid.uuid4, editable=False)
+    conversation_id = models.UUIDField(
+        default=uuid.uuid4, null=True, blank=True, db_comment='Dify对话ID')
     agent = models.ForeignKey(
         Agent, on_delete=models.RESTRICT, db_comment='所属智能体')
     user = models.ForeignKey(

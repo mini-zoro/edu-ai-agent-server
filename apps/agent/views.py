@@ -329,7 +329,7 @@ class MessageView(APIView):
         conversation_id = request.GET.get('conversation_id')
         if not conversation_id:
             return R.fail(ResponseEnum.PARAM_IS_BLANK, "对话ID不能为空")
-        messages = ConversationService.get_conversation_messgaes(
+        messages = ConversationService.get_conversation_messages(
             conversation_id, request.user.id)
         if messages is None:
             return R.fail(ResponseEnum.DATA_NOT_FOUND, "对话不存在")
@@ -346,6 +346,7 @@ class ChatView(APIView):
         """
         发送消息
         """
+        # 1. 验证请求数据
         serializer = ChatRequestSerializer(
             data=request.data,
             context={'request': request})
@@ -353,25 +354,41 @@ class ChatView(APIView):
 
         agent_id = serializer.validated_data['agent_id']
         query = serializer.validated_data['query']
-        conversation_id = serializer.validated_data['conversation_id']
-        auto_generate_name = serializer.validated_data['auto_generate_name']
+        conversation_id = serializer.validated_data.get(
+            'conversation_id')  # 安全获取
+        auto_generate_name = serializer.validated_data.get(
+            'auto_generate_name', True)  # 安全获取，默认值True
 
+        # 2. 验证智能体
         try:
             agent = Agent.objects.get(id=agent_id, is_del=0)
         except Agent.DoesNotExist:
             return R.fail(ResponseEnum.DATA_NOT_FOUND, "智能体不存在")
         if not agent.can_used_by(request.user):
             return R.fail(ResponseEnum.NOT_PERMISSION, "您没有权限使用此智能体")
+        # 3. 处理对话逻辑
         conversation = None
         is_new_conversation = False
+        dify_conversation_id = None
         if conversation_id:
-            conversation = Conversation.objects.get(
-                id=conversation_id, is_del=0, user_id=request.user.id)
+            # 现有对话：获取对话并验证权限
+            try:
+                conversation = Conversation.objects.get(
+                    id=conversation_id, is_del=0, user_id=request.user.id
+                )
+                dify_conversation_id = conversation.conversation_id
+            except Conversation.DoesNotExist:
+                return R.fail(ResponseEnum.DATA_NOT_FOUND, "对话不存在")
         else:
-            conversation = ConversationService.create_conversation(
-                agent_id, request.user.id, "新对话"
-            )
-            is_new_conversation = True
+            # 新对话：创建对话
+            try:
+                conversation = ConversationService.create_conversation(
+                    agent_id, request.user.id, "新对话"
+                )
+                is_new_conversation = True
+                dify_conversation_id = None
+            except Exception as e:
+                return R.fail(ResponseEnum.SYSTEM_ERROR, str(e))
         # 保存用户消息
         user_message_id = str(uuid.uuid4())
         ConversationService.save_message(
@@ -379,7 +396,7 @@ class ChatView(APIView):
         # 调用Dify API
         try:
             dify_response = DifyService.chat_with_agent(
-                agent, query, conversation.conversation_id, request.user.id, auto_generate_name)
+                agent, query, dify_conversation_id, request.user.id, auto_generate_name)
         except Exception as e:
             return R.fail(ResponseEnum.SYSTEM_ERROR, str(e))
         # 新对话，更新智能体使用人数
@@ -387,15 +404,55 @@ class ChatView(APIView):
             ConversationService.update_agent_usage(agent_id)
 
         def generate_response():
-            for data in DifyService.parse_dify_response(dify_response):
-                if data.get('event') == 'message':
-                    # 消息内容
-                    assistant_content += data.get('answer', '')
-                    yield f"data:{json.dumps({'type': 'message', 'content': data.get('answer', '')})}\n\n"
-                    break
-                elif data.get('event') == 'message_end':
-                    # 消息结束
-                    break
-        return StreamingHttpResponse(generate_response(), content_type='text/event-stream')
+            assistant_content = ""
+            assistant_message_id = str(uuid.uuid4())
+            related_questions = None
+            dify_conversation_id_from_response = None
+            try:
+                for data in DifyService.parse_dify_response(dify_response):
+                    if data.get('event') == 'message':
+                        # 消息内容
+                        assistant_content += data.get('answer', '')
+                        yield f"data:{json.dumps({'type': 'message', 'content': data.get('answer', '')})}\n\n"
+                        if data.get('conversation_id'):
+                            dify_conversation_id_from_response = data.get(
+                                'conversation_id')
+                    elif data.get('event') == 'message_end':
+                        # 消息结束
+                        related_questions = data.get(
+                            'metadata', {}).get('related_questions')
+                        if data.get('conversation_id'):
+                            dify_conversation_id_from_response = data.get(
+                                'conversation_id')
+                        yield f"data: {json.dumps({'type': 'message_end', 'conversation_id': conversation.id})}\n\n"
+                        break
+                    elif data.get('event') == 'message_error':
+                        # 错误处理
+                        yield f"data: {json.dumps({'type': 'error', 'message': data.get('message', '未知错误')})}\n\n"
+                        break
+                if assistant_content:
+                    ConversationService.save_message(
+                        conversation,
+                        assistant_message_id,
+                        "assistant",
+                        assistant_content,
+                        related_questions
+                    )
+                    # 如果是新对话，更新对话的Dify conversation_id
+                    if is_new_conversation and dify_conversation_id_from_response:
+                        try:
+                            ConversationService.update_conversation_id(
+                                conversation.id,  # 数据库主键
+                                dify_conversation_id_from_response  # Dify返回的ID
+                            )
+                        except ValueError as e:
+                            print(f"DEBUG: 更新conversation_id失败: {str(e)}")
+            except Exception as e:
+                yield f"data: {json.dumps({'type': 'error', 'message': f'处理响应时出错: {str(e)}'})}\n\n"
 
-        return StreamingHttpResponse(generate_response(), content_type='text/event-stream')
+        response = StreamingHttpResponse(
+            generate_response(),
+            content_type='text/event-stream'
+        )
+        response['Cache-Control'] = 'no-cache'
+        return response

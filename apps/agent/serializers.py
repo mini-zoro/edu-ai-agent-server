@@ -88,7 +88,7 @@ class ConversationSerializer(serializers.ModelSerializer):
     agent_name = serializers.CharField(source='agent.name', read_only=True)
     message_count = serializers.SerializerMethodField()
     last_message = serializers.SerializerMethodField()
-    agent_avatar = ResourceSerializer(source='agent.avatar',read_only=True)
+    agent_avatar = ResourceSerializer(source='agent.avatar', read_only=True)
 
     class Meta:
         model = Conversation
@@ -96,13 +96,15 @@ class ConversationSerializer(serializers.ModelSerializer):
 
     def get_message_count(self, obj):
         return obj.messages.filter(is_del=0).count()
-    def get_last_message(self,obj):
-        last_msg = obj.messages.filtet(is_del=0).order_by('-create_time').first()
+
+    def get_last_message(self, obj):
+        last_msg = obj.messages.filter(
+            is_del=0).order_by('-create_time').first()
         if last_msg:
-            return{
-                'content':last_msg.content[:100]+'...' if len(last_msg.content)>100 else last_msg.content,
-                'role':last_msg.role,
-                'create_time':last_msg.create_time
+            return {
+                'content': last_msg.content[:100]+'...' if len(last_msg.content) > 100 else last_msg.content,
+                'role': last_msg.role,
+                'create_time': last_msg.create_time
             }
         return None
 
@@ -111,16 +113,31 @@ class ConversationCreateSerializer(serializers.ModelSerializer):
     """
     对话创建序列化器
     """
+    agent_id = serializers.IntegerField(write_only=True)
+
     class Meta:
         model = Conversation
-        fields = ('agent', 'title')
+        fields = ('agent_id', 'title')
 
-    def validate_agent(self, value):
+    def validate_agent_id(self, value):
         """验证智能体是否存在且用户有权限使用"""
-        if not value.can_used_by(self.context['request'].user):
+        try:
+            agent = Agent.objects.get(id=value, is_del=0)
+        except Agent.DoesNotExist:
+            raise serializers.ValidationError("智能体不存在")
+
+        if not agent.can_used_by(self.context['request'].user):
             raise serializers.ValidationError("您没有权限使用此智能体")
         return value
-    
+
+    def create(self, validated_data):
+        """创建对话"""
+        agent_id = validated_data.pop('agent_id')
+        agent = Agent.objects.get(id=agent_id)
+        validated_data['agent'] = agent
+        return super().create(validated_data)
+
+
 class ConversationUpdateSerializer(serializers.ModelSerializer):
     """
     对话标题更新序列化器
@@ -128,6 +145,7 @@ class ConversationUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Conversation
         fields = ('title',)
+
 
 class MessageSerializer(serializers.ModelSerializer):
     """
@@ -146,15 +164,16 @@ class ChatRequestSerializer(serializers.Serializer):
     query = serializers.CharField()
     conversation_id = serializers.CharField(required=False, allow_blank=True)
     auto_generate_name = serializers.BooleanField(default=True)
-    
-    def validate_agent_id(self,value):
+
+    def validate_agent_id(self, value):
         try:
-            agent = Agent.objects.get(id=value,is_del=0)
+            agent = Agent.objects.get(id=value, is_del=0)
         except Agent.DoesNotExist:
             raise serializers.ValidationError("智能体不存在")
         if not agent.can_used_by(self.context['request'].user):
             raise serializers.ValidationError("您没有权限使用此智能体")
         return value
+
 
 class AgentTagSerializer(serializers.ModelSerializer):
     """
